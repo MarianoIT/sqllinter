@@ -10,11 +10,25 @@ Console.WriteLine(
 Console.WriteLine();
 
 if (args.Count() == 0)
-    Console.WriteLine("+ Falta al menos un nombre de archivo a analizar");
+    Console.WriteLine("+ Falta al menos un nombre de archivo a analizar o una carpeta");
 
 var results = new List<LinterResult>();
+var files = new List<string>();
 
-foreach (var file in args)
+foreach (var arg in args)
+{
+    FileAttributes attr = File.GetAttributes(arg);
+    if (attr == FileAttributes.Directory)
+    {
+        files.AddRange(Directory.GetFiles(arg, "*.sql"));
+    } 
+    else
+    {
+        files.Add(arg);
+    }
+}
+
+foreach (var file in files)
 {
     Console.Write($"\n+ Analizando: {file}. ");
 
@@ -28,17 +42,18 @@ foreach (var file in args)
     }
     else
     {
-        if (result.ErrorCount == 1) 
+        if (result.ErrorCount == 1)
             Console.WriteLine($"{result.ErrorCount} error detectado");
         else
             Console.WriteLine($"{result.ErrorCount} errores detectados");
 
         foreach (var error in result.Errors)
         {
-            Console.WriteLine($"    {error.Clean()}");    
+            Console.WriteLine($"    {error.Clean()}");
         }
     }
 }
+
 
 Console.WriteLine("\n√ Analisis finalizado");
 

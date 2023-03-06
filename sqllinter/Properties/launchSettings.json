@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SQLLinter": {
+      "commandName": "Project",
+      "commandLineArgs": "ticketOk.sql ticketConError.sql F:\\ticket"
+    }
+  }
+}
