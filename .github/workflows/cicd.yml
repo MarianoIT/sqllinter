@@ -26,19 +26,13 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.2
 
     - name: Restore the application
-      run: msbuild sqllinter.sln /t:Restore /p:Configuration=Release
+      run: msbuild sqllinter.sln /t:Restore /p:Configuration=Release /verbosity:minimal
 
     - name: Build the application
-      run: msbuild sqllinter.sln /p:Configuration=Release
+      run: msbuild sqllinter.sln /p:Configuration=Release /verbosity:minimal
 
-    - name: Ver despliegue
-      run: |
-        echo '${{github.workspace}}'
-        cmd /c dir *.* /s /b
-
-    # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
         name: SQLLinter
-        path: SQLLinter/bin/release
+        path: SQLLinter/bin/release/net6.0/
