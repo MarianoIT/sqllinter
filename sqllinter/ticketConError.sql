@@ -1,6 +1,8 @@
 ﻿DECLARE @COUNT INT;
 DECLARE @COUNT_USER INT = 0;
 
+--BEGIN TRAN
+
 truncate table empresa;
 
 SELECT * FROM Empresa where IdEmpresa = 1;
@@ -26,3 +28,5 @@ DELETE FROM Empresa;
 
 DROP TABLE Empresa;
 
+--COMMIT TRAN
+ROLLBACK TRAN

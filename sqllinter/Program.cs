@@ -2,6 +2,7 @@
 using System.Security.Policy;
 using System.Text;
 using Figgle;
+using System.Xml.Linq;
 
 Console.WriteLine(
     FiggleFonts.Standard.Render("SQL Linter")
@@ -141,6 +142,9 @@ class SQLVisitor : TSqlFragmentVisitor
 {
     LinterResult result = LinterResult.Ok("");
 
+    bool beginTrans = false;
+    int? beginTransLine = null;
+
     private string GetNodeTokenText(TSqlFragment fragment)
     {
         StringBuilder tokenText = new StringBuilder();
@@ -178,7 +182,34 @@ class SQLVisitor : TSqlFragmentVisitor
         result.AddError($"Linea: {node.StartLine}: {stm.ToUpper()}\n");
     }
 
-    public LinterResult GetResult() => result;
+    public override void ExplicitVisit(BeginTransactionStatement node)
+    {
+        var stm = GetNodeTokenText(node);
+        beginTransLine = node.StartLine;
+        beginTrans = true;
+    }
+    public override void ExplicitVisit(CommitTransactionStatement node)
+    {
+        if (!beginTrans)
+            result.AddError($"Linea: {node.StartLine}: COMMIT sin BEGIN TRAN \n");
+
+        beginTrans = false;
+        beginTransLine = null;
+    }
+    public override void ExplicitVisit(RollbackTransactionStatement node)
+    {
+        if (!beginTrans)
+            result.AddError($"Linea: {node.StartLine}: ROLLBACK sin BEGIN TRAN \n");
+
+        beginTrans = false;
+        beginTransLine = null;
+    }
+    public LinterResult GetResult() 
+    {
+        if (beginTrans)
+            result.AddError($"Linea: {beginTransLine}: BEGIN TRAN sin COMMIT ni ROLLBACK \n");
+        return result;
+    }
 
 }
 
